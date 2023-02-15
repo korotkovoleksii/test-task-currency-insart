@@ -4,6 +4,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import './index.css';
 import App from './core/App/App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider } from '@mui/material';
+import { appTheme } from './styles/appTheme';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +13,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <CssBaseline />
-    <App />
+    <ThemeProvider theme={appTheme}>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
