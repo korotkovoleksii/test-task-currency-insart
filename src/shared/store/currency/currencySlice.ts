@@ -1,19 +1,13 @@
 import { ICurrencyResponse } from './../../interfaces/currencyResponse.interface';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ICurrencyInitState } from './../../interfaces/currencyInit.interface';
+import { arrCodeISO } from '../../constants/codeSelectedCurrencies';
 
 
 function api<T>(url: string,): Promise<T> {
-    return fetch(url, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Credentials': 'true'
-        },
-        mode: 'cors'
-
-    })
+    return fetch(url)
         .then(response => {
-            console.log(response, 44444)
+
             if (!response.ok) {
                 throw new Error(response.statusText)
             }
@@ -23,14 +17,10 @@ function api<T>(url: string,): Promise<T> {
 
 export const retrieveCurrency = createAsyncThunk(
     'currency/retrieve',
-    async (undefine, { rejectWithValue }) => {
-        try {
-            const data = await api<ICurrencyResponse[]>('https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5');
-            console.log(data);
-            return data;
-        } catch (error) {
-            rejectWithValue(error);
-        }
+    async () => {
+
+        const data = await api<ICurrencyResponse[]>('https://api.monobank.ua/bank/currency');
+        return data.filter(item => (arrCodeISO.includes(item.currencyCodeA)));
     })
 
 const initialState: ICurrencyInitState = {
@@ -42,12 +32,26 @@ const currencySlice = createSlice(
     {
         name: '@@currency',
         initialState,
-        reducers: {},
+        reducers: {
+            changePrice: (state, action: PayloadAction<{ code: number, rateType: 'sell' | 'buy', newValue: number }>) => {
+                const { code, rateType, newValue } = action.payload;
+                const index = state.data.findIndex(item => item.currencyCodeA === code);
+                if (index >= 0) {
+                    if (rateType === 'sell') {
+                        state.data[index] = { ...state.data[index], 'rateSell': newValue }
+                    } else {
+                        state.data[index] = { ...state.data[index], 'rateBuy': newValue }
+                    }
+                }
+
+
+            }
+        },
         extraReducers: (builder) => {
             builder
                 .addCase(retrieveCurrency.fulfilled, (state, action) => {
                     state.status = 'finished';
-                    console.log(action.payload, 'wwwwww')
+
                     if (action.payload) {
                         state.data = action.payload;
                     }
@@ -56,11 +60,13 @@ const currencySlice = createSlice(
                     state.status = 'loading';
                     state.error = null;
                 })
-                .addCase(retrieveCurrency.rejected, (state) => {
-                    state.error = 'error';
+                .addCase(retrieveCurrency.rejected, (state, action) => {
+                    state.status = 'error';
+                    state.error = action.error.message ? action.error.message : 'error without message'
                 })
         }
     }
 )
+export const { changePrice } = currencySlice.actions;
 
-export default currencySlice.reducer
+export default currencySlice.reducer;

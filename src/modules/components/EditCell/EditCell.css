@@ -1,0 +1,9 @@
+/* .inputCell:active + .controlEditPanel {
+    display:block
+}
+.inputCell:focus + .hoverEditIcon {
+    display:none
+} */
+.inputCell:hover .hoverEditIcon{
+    display:  flex;
+}

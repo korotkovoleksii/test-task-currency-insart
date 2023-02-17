@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material"
 const Footer = (): JSX.Element => {
     return (
         <Box sx={{
-            height: '75px',
+            height: '100px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'

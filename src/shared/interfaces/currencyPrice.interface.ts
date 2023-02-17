@@ -1,5 +1,8 @@
 export interface IDataCurrency {
-    ccy: string,
-    baseCCY: string,
-    buy: string,
+    currencyCodeA: string,
+    currencyCodeB: string,
+    date: number,
+    rateSell: number,
+    rateBuy: number,
+    rateCross: number,
 }
