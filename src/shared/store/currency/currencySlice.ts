@@ -2,6 +2,7 @@ import { ICurrencyResponse } from './../../interfaces/currencyResponse.interface
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ICurrencyInitState } from './../../interfaces/currencyInit.interface';
 import { arrCodeISO } from '../../constants/codeSelectedCurrencies';
+import axios from 'axios';
 
 
 function api<T>(url: string,): Promise<T> {
@@ -18,8 +19,15 @@ function api<T>(url: string,): Promise<T> {
 export const retrieveCurrency = createAsyncThunk(
     'currency/retrieve',
     async () => {
+        const { data } = await axios.get<ICurrencyResponse[]>(
+            'https://api.monobank.ua/bank/currency',
+            {
+                headers: {
+                    Accept: 'application/json',
+                },
+            },
+        );
 
-        const data = await api<ICurrencyResponse[]>('https://api.monobank.ua/bank/currency');
         return data.filter(item => (arrCodeISO.includes(item.currencyCodeA)));
     })
 
